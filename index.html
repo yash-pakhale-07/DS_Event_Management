@@ -1,0 +1,2485 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Event Registration Management System (DSA Showcase)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    /* =========================================================================
+       CSS STYLING & DESIGN SYSTEM
+       Modern Dark UI with sleek cards, badges, and responsive grid
+       ========================================================================= */
+    :root {
+      --bg-main: #0b0f19;
+      --bg-card: #111827;
+      --bg-card-alt: #1a2234;
+      --border-color: #23304a;
+      --border-highlight: #3b82f6;
+      --text-main: #f3f4f6;
+      --text-muted: #94a3b8;
+      --text-dim: #64748b;
+      --primary: #6366f1;
+      --primary-hover: #4f46e5;
+      --success: #10b981;
+      --success-bg: rgba(16, 185, 129, 0.15);
+      --warning: #f59e0b;
+      --warning-bg: rgba(245, 158, 11, 0.15);
+      --danger: #ef4444;
+      --danger-bg: rgba(239, 68, 68, 0.15);
+      --badge-dsa-bg: #1e1b4b;
+      --badge-dsa-text: #a5b4fc;
+      --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+      --shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.4);
+      --radius: 12px;
+      --radius-sm: 8px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: var(--font-sans);
+      background-color: var(--bg-main);
+      color: var(--text-main);
+      min-height: 100vh;
+      line-height: 1.5;
+      padding-bottom: 3rem;
+    }
+
+    /* Container */
+    .container {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 1.5rem 1rem;
+    }
+
+    /* Header */
+    header {
+      background: linear-gradient(180deg, #161f33 0%, var(--bg-card) 100%);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius);
+      padding: 1.5rem 2rem;
+      margin-bottom: 1.5rem;
+      box-shadow: var(--shadow);
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1.25rem;
+    }
+
+    .header-title h1 {
+      font-size: 1.6rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      background: linear-gradient(90deg, #ffffff, #a5b4fc);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .header-title p {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      margin-top: 0.2rem;
+    }
+
+    .header-stats {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      align-items: center;
+    }
+
+    .stat-pill {
+      background: var(--bg-card-alt);
+      border: 1px solid var(--border-color);
+      padding: 0.5rem 1rem;
+      border-radius: 9999px;
+      font-size: 0.88rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .stat-pill strong {
+      color: #fff;
+    }
+
+    .stat-pill.waitlist {
+      border-color: rgba(245, 158, 11, 0.3);
+      color: #fbbf24;
+    }
+
+    .capacity-control {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      background: var(--bg-card-alt);
+      padding: 0.35rem 0.75rem;
+      border-radius: 9999px;
+      border: 1px solid var(--border-color);
+    }
+
+    .capacity-control label {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    .capacity-control input {
+      width: 50px;
+      background: var(--bg-main);
+      border: 1px solid var(--border-color);
+      color: #fff;
+      padding: 0.2rem 0.4rem;
+      border-radius: 4px;
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+      text-align: center;
+    }
+
+    /* Live Message Toast / Feedback */
+    #actionMessage {
+      display: none;
+      padding: 0.85rem 1.2rem;
+      border-radius: var(--radius-sm);
+      margin-bottom: 1.5rem;
+      font-size: 0.92rem;
+      align-items: center;
+      justify-content: space-between;
+      animation: fadeIn 0.2s ease-in;
+    }
+
+    #actionMessage.success {
+      display: flex;
+      background: var(--success-bg);
+      border: 1px solid rgba(16, 185, 129, 0.4);
+      color: #6ee7b7;
+    }
+
+    #actionMessage.warning {
+      display: flex;
+      background: var(--warning-bg);
+      border: 1px solid rgba(245, 158, 11, 0.4);
+      color: #fcd34d;
+    }
+
+    #actionMessage.error {
+      display: flex;
+      background: var(--danger-bg);
+      border: 1px solid rgba(239, 68, 68, 0.4);
+      color: #fca5a5;
+    }
+
+    .complexity-badge {
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      font-weight: 600;
+      padding: 0.2rem 0.55rem;
+      border-radius: 4px;
+      background: rgba(0, 0, 0, 0.35);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: #e0e7ff;
+      letter-spacing: 0.02em;
+    }
+
+    /* Layout Grid */
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1.5rem;
+    }
+
+    @media (min-width: 1024px) {
+      .dashboard-grid {
+        grid-template-columns: 7fr 5fr;
+      }
+    }
+
+    /* Cards */
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius);
+      padding: 1.5rem;
+      box-shadow: var(--shadow);
+      margin-bottom: 1.5rem;
+    }
+
+    .card-title {
+      font-size: 1.15rem;
+      font-weight: 700;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      color: #fff;
+    }
+
+    .badge-dsa {
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      background: var(--badge-dsa-bg);
+      color: var(--badge-dsa-text);
+      padding: 0.2rem 0.6rem;
+      border-radius: 9999px;
+      border: 1px solid rgba(165, 180, 252, 0.3);
+    }
+
+    /* Form Styles */
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+    }
+
+    .form-group label {
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+
+    input, select, button {
+      font-family: inherit;
+      font-size: 0.9rem;
+    }
+
+    input[type="text"], input[type="email"], select {
+      background: var(--bg-main);
+      border: 1px solid var(--border-color);
+      color: #fff;
+      padding: 0.65rem 0.85rem;
+      border-radius: var(--radius-sm);
+      outline: none;
+      transition: border-color 0.15s ease;
+    }
+
+    input[type="text"]:focus, input[type="email"]:focus, select:focus {
+      border-color: var(--border-highlight);
+    }
+
+    /* Buttons */
+    .btn {
+      cursor: pointer;
+      font-weight: 600;
+      padding: 0.65rem 1.1rem;
+      border-radius: var(--radius-sm);
+      border: 1px solid transparent;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      transition: all 0.15s ease;
+      text-decoration: none;
+    }
+
+    .btn:active {
+      transform: translateY(1px);
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: #fff;
+    }
+
+    .btn-primary:hover {
+      background: var(--primary-hover);
+    }
+
+    .btn-secondary {
+      background: var(--bg-card-alt);
+      color: var(--text-main);
+      border-color: var(--border-color);
+    }
+
+    .btn-secondary:hover {
+      background: #25334d;
+      border-color: #3b82f6;
+    }
+
+    .btn-undo {
+      background: rgba(99, 102, 241, 0.15);
+      color: #a5b4fc;
+      border-color: rgba(99, 102, 241, 0.4);
+    }
+
+    .btn-undo:hover {
+      background: rgba(99, 102, 241, 0.25);
+    }
+
+    .btn-danger-sm {
+      background: var(--danger-bg);
+      color: #f87171;
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      padding: 0.35rem 0.75rem;
+      border-radius: 6px;
+      font-size: 0.8rem;
+    }
+
+    .btn-danger-sm:hover {
+      background: var(--danger);
+      color: #fff;
+    }
+
+    /* Toolbar / Search & Sort bar */
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      align-items: center;
+      margin-bottom: 1rem;
+      background: var(--bg-card-alt);
+      padding: 0.85rem;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border-color);
+    }
+
+    .search-group {
+      display: flex;
+      flex: 1;
+      min-width: 280px;
+      gap: 0.5rem;
+    }
+
+    .search-group input {
+      flex: 1;
+    }
+
+    .table-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    /* Participants Table */
+    .table-container {
+      overflow-x: auto;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-sm);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 0.9rem;
+    }
+
+    th {
+      background: var(--bg-card-alt);
+      padding: 0.75rem 1rem;
+      color: var(--text-muted);
+      font-weight: 600;
+      text-transform: uppercase;
+      font-size: 0.75rem;
+      letter-spacing: 0.05em;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    td {
+      padding: 0.85rem 1rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      color: var(--text-main);
+    }
+
+    tr:last-child td {
+      border-bottom: none;
+    }
+
+    tr.highlighted {
+      background-color: rgba(99, 102, 241, 0.22) !important;
+      outline: 2px solid var(--border-highlight);
+    }
+
+    .node-index {
+      font-family: var(--font-mono);
+      color: var(--text-dim);
+      font-size: 0.8rem;
+    }
+
+    .participant-id {
+      font-family: var(--font-mono);
+      font-weight: 600;
+      color: #93c5fd;
+    }
+
+    /* Pointer indicators for LinkedList */
+    .pointer-badge {
+      display: inline-block;
+      font-size: 0.7rem;
+      font-weight: 700;
+      padding: 0.1rem 0.4rem;
+      border-radius: 4px;
+      margin-left: 0.35rem;
+      font-family: var(--font-mono);
+    }
+
+    .pointer-head {
+      background: rgba(16, 185, 129, 0.2);
+      color: #34d399;
+      border: 1px solid rgba(16, 185, 129, 0.4);
+    }
+
+    .pointer-tail {
+      background: rgba(245, 158, 11, 0.2);
+      color: #fbbf24;
+      border: 1px solid rgba(245, 158, 11, 0.4);
+    }
+
+    /* Queue & Stack panels */
+    .ds-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+      max-height: 280px;
+      overflow-y: auto;
+      padding-right: 0.3rem;
+    }
+
+    .ds-item {
+      background: var(--bg-card-alt);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-sm);
+      padding: 0.65rem 0.9rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 0.88rem;
+    }
+
+    .ds-item .meta {
+      display: flex;
+      flex-direction: column;
+      gap: 0.15rem;
+    }
+
+    .ds-item .name {
+      font-weight: 600;
+      color: #fff;
+    }
+
+    .ds-item .sub {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      font-family: var(--font-mono);
+    }
+
+    .tag-position {
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      padding: 0.2rem 0.5rem;
+      border-radius: 4px;
+      background: rgba(255, 255, 255, 0.08);
+      color: #e2e8f0;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 2rem 1rem;
+      color: var(--text-dim);
+      font-style: italic;
+      font-size: 0.88rem;
+    }
+
+    /* Collapsible Algorithm Accordion */
+    details.algo-panel {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius);
+      padding: 1rem 1.5rem;
+      margin-top: 1.5rem;
+      box-shadow: var(--shadow);
+    }
+
+    details.algo-panel summary {
+      cursor: pointer;
+      font-weight: 700;
+      font-size: 1.05rem;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      outline: none;
+      list-style: none;
+    }
+
+    details.algo-panel summary::-webkit-details-marker {
+      display: none;
+    }
+
+    details.algo-panel summary::after {
+      content: '+ Show';
+      font-size: 0.85rem;
+      color: var(--primary);
+      font-weight: 600;
+    }
+
+    details.algo-panel[open] summary::after {
+      content: '− Hide';
+    }
+
+    .algo-content {
+      margin-top: 1.25rem;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1rem;
+      border-top: 1px solid var(--border-color);
+      padding-top: 1.25rem;
+    }
+
+    .algo-card {
+      background: var(--bg-card-alt);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-sm);
+      padding: 1rem;
+    }
+
+    .algo-card h4 {
+      font-size: 0.95rem;
+      color: #93c5fd;
+      margin-bottom: 0.35rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .algo-card p {
+      font-size: 0.83rem;
+      color: var(--text-muted);
+      line-height: 1.45;
+    }
+
+    .algo-card code {
+      font-family: var(--font-mono);
+      background: rgba(0, 0, 0, 0.3);
+      padding: 0.1rem 0.3rem;
+      border-radius: 4px;
+      color: #fbcfe8;
+      font-size: 0.78rem;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* =========================================================================
+       TIMELINE / "HOW THE ALGORITHMS WORK" WORKFLOW STYLES
+       Scroll-driven animated workflow with dynamic line and popping dots
+       ========================================================================= */
+    .workflow-section {
+      margin-top: 3rem;
+      padding-top: 2rem;
+      border-top: 1px solid var(--border-color);
+    }
+
+    .workflow-header {
+      margin-bottom: 2rem;
+    }
+
+    .workflow-header h2 {
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+
+    .workflow-header p {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      margin-top: 0.35rem;
+    }
+
+    .timeline-container {
+      position: relative;
+      padding: 1rem 0 2rem 0;
+    }
+
+    /* Vertical line running top to bottom */
+    .timeline-line {
+      position: absolute;
+      left: 19px;
+      top: 24px;
+      bottom: 40px;
+      width: 4px;
+      background: #23304a;
+      border-radius: 2px;
+      z-index: 1;
+    }
+
+    /* Green fill line in sync with scroll progress */
+    .timeline-line-progress {
+      position: absolute;
+      left: 19px;
+      top: 24px;
+      width: 4px;
+      height: 0%;
+      background: linear-gradient(180deg, #10b981 0%, #34d399 100%);
+      border-radius: 2px;
+      z-index: 2;
+      transition: height 0.15s ease-out;
+      box-shadow: 0 0 10px rgba(16, 185, 129, 0.6);
+    }
+
+    .timeline-step {
+      position: relative;
+      display: flex;
+      align-items: flex-start;
+      margin-bottom: 2.25rem;
+      padding-left: 54px;
+    }
+
+    /* Timeline Dot */
+    .timeline-dot {
+      position: absolute;
+      left: 11px;
+      top: 18px;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: #1e293b;
+      border: 3px solid #475569;
+      z-index: 3;
+      transition: all 0.25s ease;
+    }
+
+    /* Dot Pop & Green Glow */
+    .timeline-step.active .timeline-dot {
+      background: #10b981;
+      border-color: #a7f3d0;
+      box-shadow: 0 0 14px rgba(16, 185, 129, 0.85);
+      animation: dotPop 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    @keyframes dotPop {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.35); }
+      100% { transform: scale(1); }
+    }
+
+    /* Timeline Card */
+    .timeline-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius);
+      padding: 1.25rem 1.5rem;
+      width: 100%;
+      box-shadow: var(--shadow);
+      opacity: 0.35;
+      transform: translateX(20px);
+      transition: opacity 0.35s ease, transform 0.35s ease, border-color 0.35s ease;
+    }
+
+    .timeline-step.active .timeline-card {
+      opacity: 1;
+      transform: translateX(0);
+      border-color: rgba(16, 185, 129, 0.45);
+    }
+
+    .timeline-card-header {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.5rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .step-badge {
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      font-weight: 700;
+      padding: 0.15rem 0.55rem;
+      border-radius: 4px;
+      background: rgba(255, 255, 255, 0.08);
+      color: #94a3b8;
+    }
+
+    .timeline-step.active .step-badge {
+      background: rgba(16, 185, 129, 0.2);
+      color: #34d399;
+      border: 1px solid rgba(16, 185, 129, 0.4);
+    }
+
+    .timeline-card h3 {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .timeline-card p {
+      font-size: 0.86rem;
+      color: var(--text-muted);
+      line-height: 1.5;
+      margin-bottom: 0.85rem;
+    }
+
+    /* Visual HTML/CSS Diagram Box */
+    .step-visual {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.4rem;
+      background: rgba(0, 0, 0, 0.4);
+      padding: 0.6rem 0.9rem;
+      border-radius: var(--radius-sm);
+      border: 1px solid rgba(255, 255, 255, 0.07);
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      overflow-x: auto;
+    }
+
+    .box-node {
+      background: var(--bg-card-alt);
+      border: 1px solid var(--border-color);
+      padding: 0.25rem 0.6rem;
+      border-radius: 6px;
+      color: #e2e8f0;
+      font-weight: 600;
+    }
+
+    .box-node.active-node {
+      border-color: #10b981;
+      color: #6ee7b7;
+      background: rgba(16, 185, 129, 0.12);
+    }
+
+    .box-arrow {
+      color: #818cf8;
+      font-weight: 700;
+      user-select: none;
+    }
+
+    .box-null {
+      color: #64748b;
+      font-style: italic;
+    }
+
+    /* Summary Card Table */
+    .summary-dsa-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.83rem;
+      margin-top: 0.75rem;
+      margin-bottom: 0.85rem;
+    }
+
+    .summary-dsa-table th, .summary-dsa-table td {
+      padding: 0.55rem 0.75rem;
+      border: 1px solid var(--border-color);
+    }
+
+    .summary-dsa-table th {
+      background: var(--bg-card-alt);
+      color: var(--text-muted);
+    }
+
+    .summary-dsa-table td {
+      background: rgba(0, 0, 0, 0.2);
+    }
+
+    /* All Steps Connected Banner */
+    .connection-banner {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.6rem;
+      padding: 0.85rem 1.25rem;
+      border-radius: var(--radius-sm);
+      font-weight: 700;
+      font-size: 0.92rem;
+      background: #1e293b;
+      color: #64748b;
+      border: 1px solid var(--border-color);
+      transition: all 0.4s ease;
+      text-align: center;
+    }
+
+    .connection-banner.connected {
+      background: rgba(16, 185, 129, 0.2);
+      color: #6ee7b7;
+      border: 1px solid #10b981;
+      box-shadow: 0 0 18px rgba(16, 185, 129, 0.4);
+    }
+
+    /* Reduced Motion Preference */
+    @media (prefers-reduced-motion: reduce) {
+      .timeline-dot, .timeline-card, .timeline-line-progress {
+        transition: none !important;
+        animation: none !important;
+      }
+      .timeline-card {
+        transform: none !important;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <!-- Top Header -->
+    <header>
+      <div class="header-title">
+        <h1>TechSummit 2026</h1>
+        <p>Event Registration Management System (Custom DSA Implementation)</p>
+      </div>
+      <div class="header-stats">
+        <div class="stat-pill">
+          <span>Registered:</span>
+          <strong id="registeredCountDisplay">0 / 5</strong>
+        </div>
+        <div class="stat-pill waitlist">
+          <span>Waitlist:</span>
+          <strong id="waitlistCountDisplay">0</strong>
+        </div>
+        <div class="capacity-control">
+          <label for="capacityInput">Capacity:</label>
+          <input type="number" id="capacityInput" value="5" min="1" max="50">
+          <button class="btn btn-secondary" style="padding: 0.2rem 0.6rem; font-size: 0.78rem;" id="setCapacityBtn">Set</button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Global Action Message / Toast with Complexity Badge -->
+    <div id="actionMessage">
+      <span id="actionMessageText">System initialized</span>
+      <span class="complexity-badge" id="actionComplexityBadge">O(1)</span>
+    </div>
+
+    <!-- Main 2-Column Responsive Dashboard -->
+    <div class="dashboard-grid">
+
+      <!-- LEFT COLUMN: Registration, Controls & Linked List Table -->
+      <div>
+        <!-- Registration Form Card -->
+        <div class="card">
+          <div class="card-title">
+            <span>New Participant Registration</span>
+            <span class="badge-dsa">Singly Linked List + FIFO Queue</span>
+          </div>
+
+          <form id="registrationForm">
+            <div class="form-grid">
+              <div class="form-group">
+                <label for="regId">Participant ID *</label>
+                <input type="text" id="regId" placeholder="e.g. 104" required autocomplete="off">
+              </div>
+              <div class="form-group">
+                <label for="regName">Full Name *</label>
+                <input type="text" id="regName" placeholder="e.g. Maya Lin" required autocomplete="off">
+              </div>
+              <div class="form-group">
+                <label for="regEmail">Email Address *</label>
+                <input type="email" id="regEmail" placeholder="e.g. maya@example.com" required autocomplete="off">
+              </div>
+            </div>
+            <button type="submit" class="btn btn-primary" id="registerBtn">
+              <span>Register Participant</span>
+            </button>
+          </form>
+        </div>
+
+        <!-- Participants Table & Operations Card -->
+        <div class="card">
+          <div class="card-title">
+            <span>Confirmed Participants (Linked List)</span>
+            <span class="badge-dsa">Head & Tail Pointers</span>
+          </div>
+
+          <!-- Search & Filter Bar -->
+          <div class="toolbar">
+            <div class="search-group">
+              <select id="searchTypeSelect">
+                <option value="id">Search by ID (Linear Search)</option>
+                <option value="name">Search by Name (Linear Search)</option>
+              </select>
+              <input type="text" id="searchInput" placeholder="Enter query..." autocomplete="off">
+              <button class="btn btn-secondary" id="searchBtn">Search</button>
+              <button class="btn btn-secondary" id="clearSearchBtn" title="Reset highlight">Clear</button>
+            </div>
+          </div>
+
+          <!-- Actions Toolbar -->
+          <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 0.5rem; margin-bottom: 0.85rem;">
+            <div class="table-actions">
+              <button class="btn btn-secondary" id="sortByNameBtn">Sort by Name <small style="color:var(--text-muted)">(Merge Sort)</small></button>
+              <button class="btn btn-secondary" id="sortByIdBtn">Sort by ID <small style="color:var(--text-muted)">(Merge Sort)</small></button>
+            </div>
+            <button class="btn btn-undo" id="undoBtn">↶ Undo Last Action</button>
+          </div>
+
+          <!-- Rendered Singly Linked List Table -->
+          <div class="table-container">
+            <table>
+              <thead>
+                <tr>
+                  <th style="width: 50px;">#</th>
+                  <th>ID</th>
+                  <th>Name</th>
+                  <th>Email</th>
+                  <th>Pointers</th>
+                  <th style="text-align: right;">Action</th>
+                </tr>
+              </thead>
+              <tbody id="participantsTableBody">
+                <!-- Injected via JavaScript traverse() -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT COLUMN: Waitlist Queue & Undo Stack -->
+      <div>
+        <!-- Waitlist Queue Card -->
+        <div class="card">
+          <div class="card-title">
+            <span>Waitlist (Queue)</span>
+            <span class="badge-dsa">FIFO • Front & Rear</span>
+          </div>
+          <p style="font-size: 0.82rem; color: var(--text-muted); margin-bottom: 0.75rem;">
+            When capacity is reached, new registrants join the waitlist. Cancelling a confirmed participant dequeues the first person in line.
+          </p>
+          <div class="ds-list" id="waitlistContainer">
+            <!-- Injected via JavaScript -->
+          </div>
+        </div>
+
+        <!-- Undo Stack Card -->
+        <div class="card">
+          <div class="card-title">
+            <span>Undo History (Stack)</span>
+            <span class="badge-dsa">LIFO • Top Pointer</span>
+          </div>
+          <p style="font-size: 0.82rem; color: var(--text-muted); margin-bottom: 0.75rem;">
+            Pushes every register and cancel operation with restore pointers. Reversible at any time.
+          </p>
+          <div class="ds-list" id="undoStackContainer">
+            <!-- Injected via JavaScript -->
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Collapsible DSA Documentation Section -->
+    <details class="algo-panel" open>
+      <summary>Algorithms & Data Structures Used in this System</summary>
+      <div class="algo-content">
+        <div class="algo-card">
+          <h4>Singly Linked List <code>O(n) / O(1)</code></h4>
+          <p>
+            Stores confirmed participants. Each node holds <code>{ id, name, email, next }</code>.
+            Maintains both <strong>head</strong> and <strong>tail</strong> pointers. Appending is <code>O(1)</code>
+            (duplicate ID check requires an <code>O(n)</code> linear search first). Deletion with pointer bypass is <code>O(n)</code>.
+          </p>
+        </div>
+
+        <div class="algo-card">
+          <h4>Linear Search <code>O(n)</code></h4>
+          <p>
+            Walks the linked list starting from <code>head</code>. <code>searchById(id)</code> looks for exact matching ID;
+            <code>searchByName(query)</code> performs a case-insensitive substring match. Both have <code>O(n)</code> time complexity.
+          </p>
+        </div>
+
+        <div class="algo-card">
+          <h4>Linked Queue (FIFO) <code>O(1)</code></h4>
+          <p>
+            Custom singly linked queue with <code>front</code> and <code>rear</code> pointers.
+            <code>enqueue()</code> and <code>dequeue()</code> run in <code>O(1)</code>. Powers the event waitlist when the participant limit is reached.
+          </p>
+        </div>
+
+        <div class="algo-card">
+          <h4>Linked Stack (LIFO) <code>O(1)</code></h4>
+          <p>
+            Custom singly linked stack tracking action snapshots (action type, participant data, and <code>prevId</code> for exact position restoration).
+            <code>push()</code> and <code>pop()</code> are <code>O(1)</code>.
+          </p>
+        </div>
+
+        <div class="algo-card">
+          <h4>Linked List Merge Sort <code>O(n log n)</code></h4>
+          <p>
+            Divides the list using the slow/fast pointer technique (tortoise and hare) in <code>O(n)</code>, sorts recursively,
+            and merges two sorted sub-lists by rewiring node pointers without auxiliary arrays. Re-points the <code>tail</code> pointer upon completion.
+          </p>
+        </div>
+      </div>
+    </details>
+
+    <!-- =========================================================================
+         NEW SECTION: "HOW THE ALGORITHMS WORK" (Scroll-Driven Workflow)
+         ========================================================================= -->
+    <section class="workflow-section" id="workflowSection">
+      <div class="workflow-header">
+        <h2>
+          <span>⚙ How the Algorithms Work</span>
+          <span class="badge-dsa">Live Execution Lifecycle</span>
+        </h2>
+        <p>Scroll down to see the step-by-step algorithmic pipeline executed during every participant registration, cancellation, search, and sort.</p>
+      </div>
+
+      <div class="timeline-container" id="timelineContainer">
+        <!-- Vertical guide line and dynamic green scroll progress line -->
+        <div class="timeline-line"></div>
+        <div class="timeline-line-progress" id="timelineProgress"></div>
+
+        <!-- Step 1: Form submitted: validate input -->
+        <div class="timeline-step" id="step-1">
+          <div class="timeline-dot"></div>
+          <div class="timeline-card">
+            <div class="timeline-card-header">
+              <span class="step-badge">Step 1</span>
+              <h3>Form Submitted: Input Validation</h3>
+              <div style="display:flex; gap:0.4rem; align-items:center;">
+                <span class="badge-dsa">Form Handling</span>
+                <span class="complexity-badge">O(1)</span>
+              </div>
+            </div>
+            <p>Sanitizes ID, name, and email strings. Runs a regular expression to verify standard email syntax before invoking any data structures.</p>
+            <div class="step-visual">
+              <span class="box-node">[Raw Form Input]</span>
+              <span class="box-arrow">➔</span>
+              <span class="box-node active-node">Verify non-empty &amp; RFC Email Format</span>
+              <span class="box-arrow">➔</span>
+              <span class="box-node">[Proceed to DSA Pipeline ✓]</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 2: Duplicate check: Linear Search through the linked list, O(n) -->
+        <div class="timeline-step" id="step-2">
+          <div class="timeline-dot"></div>
+          <div class="timeline-card">
+            <div class="timeline-card-header">
+              <span class="step-badge">Step 2</span>
+              <h3>Duplicate Check: Linear Search</h3>
+              <div style="display:flex; gap:0.4rem; align-items:center;">
+                <span class="badge-dsa">Linear Search</span>
+                <span class="complexity-badge">O(n)</span>
+              </div>
+            </div>
+            <p>Walks node-by-node from the linked list's <code>head</code> comparing existing participant IDs against the candidate ID to guarantee uniqueness.</p>
+            <div class="step-visual">
+              <span class="box-node">head</span>
+              <span class="box-arrow">➔</span>
+              <span class="box-node">[ID: 101]</span>
+              <span class="box-arrow">➔</span>
+              <span class="box-node">[ID: 102]</span>
+              <span class="box-arrow">➔</span>
+              <span class="box-node active-node">Check: curr.id === inputId ?</span>
+              <span class="box-arrow">➔</span>
+              <span class="box-null">null</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 3: Space available? Compare registered count with capacity -->
+        <div class="timeline-step" id="step-3">
+          <div class="timeline-dot"></div>
+          <div class="timeline-card">
+            <div class="timeline-card-header">
+              <span class="step-badge">Step 3</span>
+              <h3>Capacity Verification</h3>
+              <div style="display:flex; gap:0.4rem; align-items:center;">
+                <span class="badge-dsa">State Condition</span>
+                <span class="complexity-badge">O(1)</span>
+              </div>
+            </div>
+            <p>Evaluates whether the linked list <code>length &lt; eventCapacity</code> to determine if the registrant qualifies for immediate confirmation or the waitlist.</p>
+            <div class="step-visual">
+              <span class="box-node">Registered Count (length)</span>
+              <span class="box-arrow">&lt;</span>
+              <span class="box-node">Capacity (N)</span>
+              <span class="box-arrow">➔</span>
+              <span class="box-node active-node">TRUE: Branch 4a</span>
+              <span class="box-arrow">|</span>
+              <span class="box-node active-node">FALSE: Branch 4b</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 4a: Space available: append at the tail of the Linked List, O(1) -->
+        <div class="timeline-step" id="step-4a">
+          <div class="timeline-dot"></div>
+          <div class="timeline-card">
+            <div class="timeline-card-header">
+              <span class="step-badge">Step 4a</span>
+              <h3>Space Available: Linked List Tail Append</h3>
+              <div style="display:flex; gap:0.4rem; align-items:center;">
+                <span class="badge-dsa">Singly Linked List</span>
+                <span class="complexity-badge">O(1)</span>
+              </div>
+            </div>
+            <p>Utilizes the tracked <code>tail</code> pointer to append the new node in constant time via <code>tail.next = newNode; tail = newNode;</code> without full traversal.</p>
+            <div class="step-visual">
+              <span class="box-node">... [Prev Node]</span>
+              <span class="box-arrow">➔</span>
+              <span class="box-node">[Old Tail]</span>
+              <span class="box-arrow">➔</span>
+              <span class="box-node active-node">[New Node] (New Tail)</span>
+              <span class="box-arrow">➔</span>
+              <span class="box-null">null</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 4b: Full: Queue enqueue at the rear of the waitlist, O(1) -->
+        <div class="timeline-step" id="step-4b">
+          <div class="timeline-dot"></div>
+          <div class="timeline-card">
+            <div class="timeline-card-header">
+              <span class="step-badge">Step 4b</span>
+              <h3>Event Full: FIFO Waitlist Enqueue</h3>
+              <div style="display:flex; gap:0.4rem; align-items:center;">
+                <span class="badge-dsa">Linked Queue</span>
+                <span class="complexity-badge">O(1)</span>
+              </div>
+            </div>
+            <p>If the event is full, the participant is enqueued at the rear of the waitlist queue using the <code>rear</code> pointer: <code>rear.next = node; rear = node;</code>.</p>
+            <div class="step-visual">
+              <span class="box-node">front ➔ [W1]</span>
+              <span class="box-arrow">➔</span>
+              <span class="box-node">[W2]</span>
+              <span class="box-arrow">➔</span>
+              <span class="box-node active-node">[W3 New Registrant] (rear)</span>
+              <span class="box-arrow">➔</span>
+              <span class="box-null">null</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 5: Record the action: Stack push onto the undo stack, O(1) -->
+        <div class="timeline-step" id="step-5">
+          <div class="timeline-dot"></div>
+          <div class="timeline-card">
+            <div class="timeline-card-header">
+              <span class="step-badge">Step 5</span>
+              <h3>Record Action: Stack Push</h3>
+              <div style="display:flex; gap:0.4rem; align-items:center;">
+                <span class="badge-dsa">Linked Stack</span>
+                <span class="complexity-badge">O(1)</span>
+              </div>
+            </div>
+            <p>Pushes an action snapshot onto the top of the LIFO undo stack containing the operation type, participant payload, and predecessor node reference (<code>prevId</code>).</p>
+            <div class="step-visual">
+              <span class="box-node active-node">top ➔ [Action: REGISTER / CANCEL]</span>
+              <span class="box-arrow">➔</span>
+              <span class="box-node">[Prior Action]</span>
+              <span class="box-arrow">➔</span>
+              <span class="box-null">null</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 6: Searching: Linear Search by ID or name, O(n) -->
+        <div class="timeline-step" id="step-6">
+          <div class="timeline-dot"></div>
+          <div class="timeline-card">
+            <div class="timeline-card-header">
+              <span class="step-badge">Step 6</span>
+              <h3>Searching: Linear Search by ID or Name</h3>
+              <div style="display:flex; gap:0.4rem; align-items:center;">
+                <span class="badge-dsa">Linear Search</span>
+                <span class="complexity-badge">O(n)</span>
+              </div>
+            </div>
+            <p>Walks the list sequentially starting from <code>head</code>. Compares exact IDs or performs case-insensitive substring checks, collecting matches without using any Hash Maps.</p>
+            <div class="step-visual">
+              <span class="box-node">head</span>
+              <span class="box-arrow">➔</span>
+              <span class="box-node">[Alice]</span>
+              <span class="box-arrow">➔</span>
+              <span class="box-node active-node">[Bob (Match Highlighted!)]</span>
+              <span class="box-arrow">➔</span>
+              <span class="box-node">[Charlie]</span>
+              <span class="box-arrow">➔</span>
+              <span class="box-null">null</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 7: Sorting: Merge Sort on the linked list (split, sort halves, merge), O(n log n) -->
+        <div class="timeline-step" id="step-7">
+          <div class="timeline-dot"></div>
+          <div class="timeline-card">
+            <div class="timeline-card-header">
+              <span class="step-badge">Step 7</span>
+              <h3>Sorting: Linked List Merge Sort</h3>
+              <div style="display:flex; gap:0.4rem; align-items:center;">
+                <span class="badge-dsa">Divide &amp; Conquer</span>
+                <span class="complexity-badge">O(n log n)</span>
+              </div>
+            </div>
+            <p>Splits list into halves with slow/fast pointers in O(n), recursively sorts each half, merges them by rewiring <code>next</code> pointers, and re-points <code>tail</code> to the last node.</p>
+            <div class="step-visual">
+              <span class="box-node">[Sublist L]</span>
+              <span class="box-arrow">+</span>
+              <span class="box-node">[Sublist R]</span>
+              <span class="box-arrow">➔ (Compare &amp; Splice) ➔</span>
+              <span class="box-node active-node">[Sorted Linked List]</span>
+              <span class="box-arrow">➔</span>
+              <span class="box-node">tail reset ✓</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 8: Cancellation: Linear Search with a prev pointer, then bypass the node, O(n) -->
+        <div class="timeline-step" id="step-8">
+          <div class="timeline-dot"></div>
+          <div class="timeline-card">
+            <div class="timeline-card-header">
+              <span class="step-badge">Step 8</span>
+              <h3>Cancellation: Search &amp; Node Bypass</h3>
+              <div style="display:flex; gap:0.4rem; align-items:center;">
+                <span class="badge-dsa">Singly Linked List</span>
+                <span class="complexity-badge">O(n)</span>
+              </div>
+            </div>
+            <p>Locates the target node using linear search while tracking <code>prev</code>. Bypasses the node via <code>prev.next = curr.next</code> and accurately updates <code>head</code> and <code>tail</code>.</p>
+            <div class="step-visual">
+              <span class="box-node">[prev Node]</span>
+              <span class="box-arrow">───(bypasses [curr Cancelled])───➔</span>
+              <span class="box-node active-node">[curr.next Node]</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 9: Waitlist promotion: Queue dequeue from the front and auto-register, O(1) -->
+        <div class="timeline-step" id="step-9">
+          <div class="timeline-dot"></div>
+          <div class="timeline-card">
+            <div class="timeline-card-header">
+              <span class="step-badge">Step 9</span>
+              <h3>Waitlist Promotion: FIFO Dequeue</h3>
+              <div style="display:flex; gap:0.4rem; align-items:center;">
+                <span class="badge-dsa">Linked Queue</span>
+                <span class="complexity-badge">O(1)</span>
+              </div>
+            </div>
+            <p>When a spot opens due to cancellation, the participant at <code>front</code> is dequeued in O(1) and automatically appended into the confirmed participants list.</p>
+            <div class="step-visual">
+              <span class="box-node active-node">dequeue(front)</span>
+              <span class="box-arrow">➔</span>
+              <span class="box-node">[First Waitlisted Person]</span>
+              <span class="box-arrow">➔</span>
+              <span class="box-node">registerParticipant()</span>
+              <span class="box-arrow">➔</span>
+              <span class="box-node">Confirmed List ✓</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 10: Undo: Stack pop and reverse the last action, O(1) -->
+        <div class="timeline-step" id="step-10">
+          <div class="timeline-dot"></div>
+          <div class="timeline-card">
+            <div class="timeline-card-header">
+              <span class="step-badge">Step 10</span>
+              <h3>Undo: Stack Pop &amp; Inverse Action</h3>
+              <div style="display:flex; gap:0.4rem; align-items:center;">
+                <span class="badge-dsa">Linked Stack</span>
+                <span class="complexity-badge">O(1)</span>
+              </div>
+            </div>
+            <p>Pops the last action from <code>top</code> in O(1). Restores cancelled nodes to their original position using <code>prevId</code>, and returns any auto-promoted waitlist member to the queue front.</p>
+            <div class="step-visual">
+              <span class="box-node active-node">pop(top)</span>
+              <span class="box-arrow">➔</span>
+              <span class="box-node">[Inspect Action Type]</span>
+              <span class="box-arrow">➔</span>
+              <span class="box-node">insertAt(prevId) / prepend(front)</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 11: Summary card: table of all DSA concepts, where each is used and its complexity, plus an "All steps connected" message when the last dot turns green -->
+        <div class="timeline-step" id="step-11">
+          <div class="timeline-dot"></div>
+          <div class="timeline-card">
+            <div class="timeline-card-header">
+              <span class="step-badge">Step 11</span>
+              <h3>Architecture Summary: Connected Lifecycle</h3>
+              <div style="display:flex; gap:0.4rem; align-items:center;">
+                <span class="badge-dsa">System Overview</span>
+                <span class="complexity-badge">Full Lifecycle</span>
+              </div>
+            </div>
+            <p>Comprehensive breakdown of all data structures and algorithms working cohesively across the registration workflow without relying on built-in shortcuts or hash maps.</p>
+            
+            <table class="summary-dsa-table">
+              <thead>
+                <tr>
+                  <th>DSA Concept</th>
+                  <th>Implementation</th>
+                  <th>Primary Role in System</th>
+                  <th>Time Complexity</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>Singly Linked List</strong></td>
+                  <td>Custom (head &amp; tail)</td>
+                  <td>Main storage for registered participants</td>
+                  <td>Append O(1), Delete O(n)</td>
+                </tr>
+                <tr>
+                  <td><strong>Linear Search</strong></td>
+                  <td>Pointer traversal</td>
+                  <td>Duplicate check &amp; participant search</td>
+                  <td>O(n)</td>
+                </tr>
+                <tr>
+                  <td><strong>Linked Queue (FIFO)</strong></td>
+                  <td>Front &amp; rear pointers</td>
+                  <td>Event waitlist queue &amp; auto-promotions</td>
+                  <td>Enqueue O(1), Dequeue O(1)</td>
+                </tr>
+                <tr>
+                  <td><strong>Linked Stack (LIFO)</strong></td>
+                  <td>Top pointer</td>
+                  <td>Undo history &amp; state reversal</td>
+                  <td>Push O(1), Pop O(1)</td>
+                </tr>
+                <tr>
+                  <td><strong>Merge Sort</strong></td>
+                  <td>Slow/Fast pointer split</td>
+                  <td>Re-ordering list by Name or ID</td>
+                  <td>O(n log n)</td>
+                </tr>
+              </tbody>
+            </table>
+
+            <!-- Connection Status Banner -->
+            <div class="connection-banner" id="connectionBanner">
+              <span>●</span>
+              <span>All steps connected! Complete DSA Lifecycle Active</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+  </div>
+
+  <!-- =========================================================================
+       JAVASCRIPT LOGIC
+       1. Node, LinkedList (register, cancel, search, mergeSort)
+       2. Queue (enqueue, dequeue)
+       3. Stack (push, pop)
+       4. Controller & UI Bindings + LocalStorage
+       ========================================================================= -->
+  <script>
+    // =========================================================================
+    // 1. SINGLY LINKED LIST (Confirmed Participants)
+    // =========================================================================
+
+    /**
+     * Node represents a single participant in the singly linked list.
+     * Contains data fields and a reference to the next node.
+     */
+    class ListNode {
+      constructor(id, name, email) {
+        this.id = String(id).trim();
+        this.name = String(name).trim();
+        this.email = String(email).trim();
+        this.next = null;
+      }
+    }
+
+    /**
+     * Singly Linked List with both head and tail pointers.
+     * Provides O(1) append at tail, O(n) duplicate check, O(n) cancel, and O(n log n) merge sort.
+     */
+    class LinkedList {
+      constructor() {
+        this.head = null;
+        this.tail = null;
+        this.length = 0;
+      }
+
+      /**
+       * Check if an ID already exists in the list via Linear Search.
+       * Time Complexity: O(n)
+       */
+      searchById(id) {
+        let curr = this.head;
+        const targetId = String(id).trim();
+        while (curr !== null) {
+          if (curr.id === targetId) return curr;
+          curr = curr.next;
+        }
+        return null;
+      }
+
+      /**
+       * Search participants by case-insensitive partial name match.
+       * Time Complexity: O(n)
+       * Returns an array of matching participant IDs.
+       */
+      searchByName(query) {
+        const matches = [];
+        const q = String(query).toLowerCase().trim();
+        if (!q) return matches;
+
+        let curr = this.head;
+        while (curr !== null) {
+          if (curr.name.toLowerCase().includes(q)) {
+            matches.push(curr.id);
+          }
+          curr = curr.next;
+        }
+        return matches;
+      }
+
+      /**
+       * Register a new participant:
+       * 1. Linear search for duplicate ID: O(n)
+       * 2. Append at tail pointer: O(1)
+       * Overall Time Complexity: O(n)
+       */
+      register(id, name, email) {
+        // Linear search for duplicate ID
+        if (this.searchById(id)) {
+          return { success: false, reason: 'DUPLICATE_ID' };
+        }
+
+        const newNode = new ListNode(id, name, email);
+
+        if (!this.head) {
+          // Empty list: both head and tail point to new node
+          this.head = newNode;
+          this.tail = newNode;
+        } else {
+          // O(1) append using tail pointer
+          this.tail.next = newNode;
+          this.tail = newNode;
+        }
+
+        this.length++;
+        return { success: true, node: newNode };
+      }
+
+      /**
+       * Cancel/Remove a participant by ID.
+       * Traverses with a prev pointer, bypasses node, and updates head/tail properly.
+       * Time Complexity: O(n)
+       * Returns: { success: boolean, removed: ListNode, prevId: string|null }
+       */
+      cancel(id) {
+        if (!this.head) return { success: false };
+
+        const targetId = String(id).trim();
+        let curr = this.head;
+        let prev = null;
+
+        while (curr !== null && curr.id !== targetId) {
+          prev = curr;
+          curr = curr.next;
+        }
+
+        // ID not found
+        if (!curr) return { success: false };
+
+        const prevId = prev ? prev.id : null;
+
+        if (curr === this.head) {
+          // Case 1: Removing head node
+          this.head = this.head.next;
+          if (!this.head) {
+            // List is now empty
+            this.tail = null;
+          }
+        } else {
+          // Case 2: Removing middle or tail node
+          prev.next = curr.next;
+          if (curr === this.tail) {
+            // Update tail pointer when removing the last element
+            this.tail = prev;
+          }
+        }
+
+        this.length--;
+        return { success: true, removed: curr, prevId };
+      }
+
+      /**
+       * Insert a participant back at their original position relative to prevId.
+       * Used during Undo to preserve exact list ordering.
+       */
+      insertAt(participant, prevId) {
+        const newNode = new ListNode(participant.id, participant.name, participant.email);
+
+        if (prevId === null || !this.head) {
+          // Insert at head
+          newNode.next = this.head;
+          this.head = newNode;
+          if (!this.tail) this.tail = newNode;
+        } else {
+          // Find prev node
+          let curr = this.head;
+          while (curr && curr.id !== prevId) {
+            curr = curr.next;
+          }
+
+          if (curr) {
+            // Insert after curr
+            newNode.next = curr.next;
+            curr.next = newNode;
+            if (curr === this.tail) {
+              this.tail = newNode;
+            }
+          } else {
+            // Fallback: append at tail if prev node cannot be located
+            this.tail.next = newNode;
+            this.tail = newNode;
+          }
+        }
+
+        this.length++;
+        return newNode;
+      }
+
+      /**
+       * Traverse list to an array format (used solely for UI table rendering and storage).
+       * Time Complexity: O(n)
+       */
+      traverse() {
+        const result = [];
+        let curr = this.head;
+        while (curr !== null) {
+          result.push({
+            id: curr.id,
+            name: curr.name,
+            email: curr.email,
+            isHead: curr === this.head,
+            isTail: curr === this.tail
+          });
+          curr = curr.next;
+        }
+        return result;
+      }
+
+      /**
+       * Linked List Merge Sort (Recursive with slow/fast pointer).
+       * Time Complexity: O(n log n)
+       * Space Complexity: O(log n) call stack, O(1) auxiliary node memory.
+       * @param {'name'|'id'} key - Field to sort by
+       */
+      mergeSort(key = 'name') {
+        if (!this.head || !this.head.next) return;
+
+        // Comparator
+        const compare = (a, b) => {
+          if (key === 'id') {
+            const numA = Number(a.id);
+            const numB = Number(b.id);
+            if (!isNaN(numA) && !isNaN(numB)) return numA - numB;
+            return a.id.localeCompare(b.id);
+          }
+          return a.name.localeCompare(b.name, undefined, { sensitivity: 'base' });
+        };
+
+        this.head = this._splitAndMerge(this.head, compare);
+
+        // Re-calculate the tail pointer after sorting
+        let curr = this.head;
+        while (curr && curr.next) {
+          curr = curr.next;
+        }
+        this.tail = curr;
+      }
+
+      // Helper to find midpoint using slow/fast pointers (tortoise and hare)
+      _getMiddle(head) {
+        let slow = head;
+        let fast = head.next;
+        while (fast && fast.next) {
+          slow = slow.next;
+          fast = fast.next.next;
+        }
+        return slow;
+      }
+
+      _splitAndMerge(head, compare) {
+        if (!head || !head.next) return head;
+
+        // Split list into left and right halves
+        const mid = this._getMiddle(head);
+        const nextToMid = mid.next;
+        mid.next = null; // Sever the link
+
+        const left = this._splitAndMerge(head, compare);
+        const right = this._splitAndMerge(nextToMid, compare);
+
+        return this._merge(left, right, compare);
+      }
+
+      // Merge two sorted sub-linked lists
+      _merge(left, right, compare) {
+        if (!left) return right;
+        if (!right) return left;
+
+        let dummy = new ListNode('', '', '');
+        let tail = dummy;
+
+        while (left && right) {
+          if (compare(left, right) <= 0) {
+            tail.next = left;
+            left = left.next;
+          } else {
+            tail.next = right;
+            right = right.next;
+          }
+          tail = tail.next;
+        }
+
+        tail.next = left ? left : right;
+        return dummy.next;
+      }
+    }
+
+
+    // =========================================================================
+    // 2. LINKED QUEUE (Waitlist - FIFO)
+    // =========================================================================
+
+    class QueueNode {
+      constructor(data) {
+        this.data = data; // { id, name, email }
+        this.next = null;
+      }
+    }
+
+    /**
+     * Singly Linked Queue with Front and Rear pointers.
+     * Enqueue O(1), Dequeue O(1).
+     */
+    class Queue {
+      constructor() {
+        this.front = null;
+        this.rear = null;
+        this.length = 0;
+      }
+
+      /**
+       * Enqueue a participant at the rear of the queue.
+       * Time Complexity: O(1)
+       */
+      enqueue(data) {
+        const node = new QueueNode(data);
+        if (this.isEmpty()) {
+          this.front = this.rear = node;
+        } else {
+          this.rear.next = node;
+          this.rear = node;
+        }
+        this.length++;
+      }
+
+      /**
+       * Dequeue the first participant from the front of the queue.
+       * Time Complexity: O(1)
+       */
+      dequeue() {
+        if (this.isEmpty()) return null;
+        const item = this.front.data;
+        this.front = this.front.next;
+        if (!this.front) {
+          this.rear = null;
+        }
+        this.length--;
+        return item;
+      }
+
+      /**
+       * Prepend an item back to the front (used during undo).
+       * Time Complexity: O(1)
+       */
+      prepend(data) {
+        const node = new QueueNode(data);
+        if (this.isEmpty()) {
+          this.front = this.rear = node;
+        } else {
+          node.next = this.front;
+          this.front = node;
+        }
+        this.length++;
+      }
+
+      /**
+       * Remove a specific participant from the queue by ID (for undoing waitlist addition).
+       * Time Complexity: O(n)
+       */
+      removeById(id) {
+        if (this.isEmpty()) return null;
+        let curr = this.front;
+        let prev = null;
+        const targetId = String(id).trim();
+
+        while (curr) {
+          if (curr.data.id === targetId) {
+            if (!prev) {
+              this.front = curr.next;
+              if (!this.front) this.rear = null;
+            } else {
+              prev.next = curr.next;
+              if (this.rear === curr) this.rear = prev;
+            }
+            this.length--;
+            return curr.data;
+          }
+          prev = curr;
+          curr = curr.next;
+        }
+        return null;
+      }
+
+      /**
+       * Check if an ID exists in the queue.
+       * Time Complexity: O(n)
+       */
+      containsId(id) {
+        let curr = this.front;
+        const targetId = String(id).trim();
+        while (curr) {
+          if (curr.data.id === targetId) return true;
+          curr = curr.next;
+        }
+        return false;
+      }
+
+      peek() {
+        return this.isEmpty() ? null : this.front.data;
+      }
+
+      isEmpty() {
+        return this.length === 0;
+      }
+
+      toArray() {
+        const arr = [];
+        let curr = this.front;
+        while (curr) {
+          arr.push(curr.data);
+          curr = curr.next;
+        }
+        return arr;
+      }
+    }
+
+
+    // =========================================================================
+    // 3. LINKED STACK (Undo History - LIFO)
+    // =========================================================================
+
+    class StackNode {
+      constructor(action) {
+        this.action = action;
+        this.next = null;
+      }
+    }
+
+    /**
+     * Singly Linked Stack with a Top pointer.
+     * Push O(1), Pop O(1).
+     */
+    class Stack {
+      constructor() {
+        this.top = null;
+        this.length = 0;
+      }
+
+      /**
+       * Push an action onto the undo stack.
+       * Time Complexity: O(1)
+       */
+      push(action) {
+        const node = new StackNode(action);
+        node.next = this.top;
+        this.top = node;
+        this.length++;
+      }
+
+      /**
+       * Pop the most recent action off the undo stack.
+       * Time Complexity: O(1)
+       */
+      pop() {
+        if (this.isEmpty()) return null;
+        const item = this.top.action;
+        this.top = this.top.next;
+        this.length--;
+        return item;
+      }
+
+      peek() {
+        return this.isEmpty() ? null : this.top.action;
+      }
+
+      isEmpty() {
+        return this.length === 0;
+      }
+
+      toArray() {
+        const arr = [];
+        let curr = this.top;
+        while (curr) {
+          arr.push(curr.action);
+          curr = curr.next;
+        }
+        return arr;
+      }
+    }
+
+
+    // =========================================================================
+    // 4. CONTROLLER LAYER & STATE MANAGEMENT
+    // =========================================================================
+
+    // Global Data Structure Instances
+    const participantsList = new LinkedList();
+    const waitlistQueue = new Queue();
+    const undoStack = new Stack();
+
+    let eventCapacity = 5;
+    let currentSearchQuery = '';
+    let currentSearchType = 'id';
+    // Replaced Set with a plain array & linear search (No Hash Maps)
+    let highlightedIds = [];
+
+    /**
+     * Linear Search over highlighted IDs array.
+     * Time Complexity: O(m)
+     */
+    function isIdHighlighted(id) {
+      for (let i = 0; i < highlightedIds.length; i++) {
+        if (highlightedIds[i] === id) return true;
+      }
+      return false;
+    }
+
+    // DOM Elements
+    const registeredCountDisplay = document.getElementById('registeredCountDisplay');
+    const waitlistCountDisplay = document.getElementById('waitlistCountDisplay');
+    const capacityInput = document.getElementById('capacityInput');
+    const setCapacityBtn = document.getElementById('setCapacityBtn');
+    const actionMessage = document.getElementById('actionMessage');
+    const actionMessageText = document.getElementById('actionMessageText');
+    const actionComplexityBadge = document.getElementById('actionComplexityBadge');
+
+    const registrationForm = document.getElementById('registrationForm');
+    const regId = document.getElementById('regId');
+    const regName = document.getElementById('regName');
+    const regEmail = document.getElementById('regEmail');
+
+    const participantsTableBody = document.getElementById('participantsTableBody');
+    const waitlistContainer = document.getElementById('waitlistContainer');
+    const undoStackContainer = document.getElementById('undoStackContainer');
+
+    const searchTypeSelect = document.getElementById('searchTypeSelect');
+    const searchInput = document.getElementById('searchInput');
+    const searchBtn = document.getElementById('searchBtn');
+    const clearSearchBtn = document.getElementById('clearSearchBtn');
+
+    const sortByNameBtn = document.getElementById('sortByNameBtn');
+    const sortByIdBtn = document.getElementById('sortByIdBtn');
+    const undoBtn = document.getElementById('undoBtn');
+
+    /**
+     * Show UI feedback message along with its DSA time complexity badge.
+     */
+    function showNotification(text, type = 'success', complexity = 'O(1)') {
+      actionMessage.className = type;
+      actionMessageText.textContent = text;
+      actionComplexityBadge.textContent = complexity;
+      actionMessage.style.display = 'flex';
+    }
+
+    /**
+     * Register a new participant:
+     * - Validates form
+     * - Checks for duplicate ID in both confirmed list and waitlist: O(n)
+     * - If space available: Appends to Singly Linked List: O(1)
+     * - If capacity full: Enqueues to FIFO Waitlist: O(1)
+     * - Pushes action onto Undo Stack: O(1)
+     */
+    function registerParticipant(id, name, email) {
+      id = String(id).trim();
+      name = String(name).trim();
+      email = String(email).trim();
+
+      // Form validation
+      if (!id || !name || !email) {
+        showNotification('All fields are required.', 'error', 'Validation');
+        return;
+      }
+
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(email)) {
+        showNotification('Please enter a valid email address.', 'error', 'Validation');
+        return;
+      }
+
+      // Check duplicates in linked list: O(n)
+      if (participantsList.searchById(id)) {
+        showNotification(`Registration failed: ID "${id}" is already registered.`, 'error', 'Search O(n)');
+        return;
+      }
+
+      // Check duplicates in waitlist queue: O(n)
+      if (waitlistQueue.containsId(id)) {
+        showNotification(`Registration failed: ID "${id}" is already on the waitlist.`, 'error', 'Search O(n)');
+        return;
+      }
+
+      const participant = { id, name, email };
+
+      if (participantsList.length < eventCapacity) {
+        // Event has capacity: Append to Singly Linked List
+        participantsList.register(id, name, email);
+
+        // Record on Undo Stack
+        undoStack.push({
+          type: 'REGISTER_MAIN',
+          title: `Register ${name} (#${id})`,
+          participant
+        });
+
+        showNotification(
+          `Registered ${name} successfully!`,
+          'success',
+          'Register: O(n) check + O(1) tail append'
+        );
+      } else {
+        // Event is at capacity: Enqueue to Waitlist
+        waitlistQueue.enqueue(participant);
+
+        // Record on Undo Stack
+        undoStack.push({
+          type: 'REGISTER_WAITLIST',
+          title: `Waitlisted ${name} (#${id})`,
+          participant
+        });
+
+        showNotification(
+          `Event is at capacity (${eventCapacity}). ${name} placed on waitlist (#${waitlistQueue.length}).`,
+          'warning',
+          'Waitlist Enqueue: O(1)'
+        );
+      }
+
+      saveState();
+      render();
+    }
+
+    /**
+     * Cancel an existing confirmed participant:
+     * - Removes node from Singly Linked List: O(n)
+     * - If waitlist has someone: Dequeues next person from Queue (O(1)) and registers them
+     * - Records operation on Undo Stack: O(1)
+     */
+    function cancelParticipant(id) {
+      const cancelResult = participantsList.cancel(id);
+      if (!cancelResult.success) {
+        showNotification(`Participant #${id} not found.`, 'error', 'Search O(n)');
+        return;
+      }
+
+      const removedParticipant = {
+        id: cancelResult.removed.id,
+        name: cancelResult.removed.name,
+        email: cancelResult.removed.email
+      };
+      const prevId = cancelResult.prevId;
+
+      let promoted = null;
+
+      // Check if waitlist has someone ready to be promoted
+      if (!waitlistQueue.isEmpty()) {
+        promoted = waitlistQueue.dequeue(); // O(1)
+        participantsList.register(promoted.id, promoted.name, promoted.email); // O(1) append
+      }
+
+      // Push to Undo Stack
+      undoStack.push({
+        type: 'CANCEL',
+        title: `Cancelled ${removedParticipant.name} (#${removedParticipant.id})`,
+        participant: removedParticipant,
+        prevId: prevId,
+        promoted: promoted
+      });
+
+      if (promoted) {
+        showNotification(
+          `Cancelled ${removedParticipant.name}. Auto-promoted ${promoted.name} from waitlist!`,
+          'success',
+          'Cancel O(n) + Dequeue O(1)'
+        );
+      } else {
+        showNotification(
+          `Cancelled registration for ${removedParticipant.name}.`,
+          'success',
+          'Cancel: O(n) search & bypass'
+        );
+      }
+
+      saveState();
+      render();
+    }
+
+    /**
+     * Undo the most recent action:
+     * - Pops action snapshot from Undo Stack: O(1)
+     * - Reverses the action symmetrically
+     */
+    function undo() {
+      if (undoStack.isEmpty()) {
+        showNotification('Undo history is empty.', 'warning', 'Stack O(1)');
+        return;
+      }
+
+      const action = undoStack.pop(); // O(1)
+
+      if (action.type === 'REGISTER_MAIN') {
+        // Undo direct registration -> cancel participant
+        participantsList.cancel(action.participant.id);
+        showNotification(
+          `Undid registration of ${action.participant.name}.`,
+          'success',
+          'Undo: O(1) pop + O(n) list cancel'
+        );
+      } else if (action.type === 'REGISTER_WAITLIST') {
+        // Undo waitlist entry -> remove from queue
+        waitlistQueue.removeById(action.participant.id);
+        showNotification(
+          `Undid waitlisting of ${action.participant.name}.`,
+          'success',
+          'Undo: O(1) pop + O(n) queue cancel'
+        );
+      } else if (action.type === 'CANCEL') {
+        // Undo a cancellation:
+        // 1. If someone was promoted from the waitlist, demote them back to the waitlist front
+        if (action.promoted) {
+          participantsList.cancel(action.promoted.id);
+          waitlistQueue.prepend(action.promoted); // O(1) front prepend
+        }
+        // 2. Restore the original participant at their exact relative position (prevId)
+        participantsList.insertAt(action.participant, action.prevId);
+
+        showNotification(
+          `Restored ${action.participant.name} to confirmed list.`,
+          'success',
+          'Undo: O(1) pop + O(n) list restore'
+        );
+      }
+
+      saveState();
+      render();
+    }
+
+    /**
+     * Perform linear search across the list.
+     * Time Complexity: O(n)
+     */
+    function performSearch() {
+      const query = searchInput.value.trim();
+      const type = searchTypeSelect.value;
+      highlightedIds = [];
+
+      if (!query) {
+        showNotification('Search input cleared.', 'warning', 'O(1)');
+        render();
+        return;
+      }
+
+      if (type === 'id') {
+        const found = participantsList.searchById(query);
+        if (found) {
+          highlightedIds.push(found.id);
+          showNotification(`Found participant with ID "${query}".`, 'success', 'Search by ID: O(n)');
+        } else {
+          showNotification(`No participant found with ID "${query}".`, 'warning', 'Search by ID: O(n)');
+        }
+      } else {
+        const matches = participantsList.searchByName(query);
+        if (matches.length > 0) {
+          matches.forEach(id => highlightedIds.push(id));
+          showNotification(`Found ${matches.length} participant(s) matching "${query}".`, 'success', 'Search by Name: O(n)');
+        } else {
+          showNotification(`No participants match "${query}".`, 'warning', 'Search by Name: O(n)');
+        }
+      }
+
+      render();
+    }
+
+    /**
+     * Clear search query and table row highlights.
+     */
+    function clearSearch() {
+      searchInput.value = '';
+      highlightedIds = [];
+      showNotification('Search highlights cleared.', 'success', 'O(1)');
+      render();
+    }
+
+    /**
+     * Sort the linked list using Linked List Merge Sort.
+     * Time Complexity: O(n log n)
+     */
+    function sortParticipants(key) {
+      if (participantsList.length <= 1) {
+        showNotification('Not enough participants to sort.', 'warning', 'Sort O(1)');
+        return;
+      }
+
+      participantsList.mergeSort(key); // O(n log n)
+      showNotification(
+        `Participants sorted by ${key.toUpperCase()} using Linked List Merge Sort.`,
+        'success',
+        'Merge Sort: O(n log n)'
+      );
+
+      saveState();
+      render();
+    }
+
+
+    // =========================================================================
+    // 5. LOCAL STORAGE PERSISTENCE
+    // =========================================================================
+
+    const STORAGE_KEY = 'DSA_EVENT_REGISTRATION_DATA';
+
+    function saveState() {
+      try {
+        const state = {
+          capacity: eventCapacity,
+          participants: participantsList.traverse(),
+          waitlist: waitlistQueue.toArray()
+        };
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      } catch (err) {
+        console.warn('LocalStorage save failed:', err);
+      }
+    }
+
+    function loadState() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (raw) {
+          const data = JSON.parse(raw);
+          if (data.capacity) eventCapacity = Number(data.capacity);
+
+          // Rebuild Linked List
+          if (Array.isArray(data.participants)) {
+            data.participants.forEach(p => participantsList.register(p.id, p.name, p.email));
+          }
+
+          // Rebuild Waitlist Queue
+          if (Array.isArray(data.waitlist)) {
+            data.waitlist.forEach(p => waitlistQueue.enqueue(p));
+          }
+          return true;
+        }
+      } catch (err) {
+        console.warn('LocalStorage load failed:', err);
+      }
+      return false;
+    }
+
+    /**
+     * Seeds initial 3 participants if state is completely empty on first load.
+     */
+    function seedInitialData() {
+      participantsList.register('101', 'Alice Johnson', 'alice@example.com');
+      participantsList.register('102', 'Bob Smith', 'bob@example.com');
+      participantsList.register('103', 'Charlie Brown', 'charlie@example.com');
+    }
+
+
+    // =========================================================================
+    // 6. UI RENDER METHOD
+    // =========================================================================
+
+    function render() {
+      // 1. Update Header Counters
+      registeredCountDisplay.textContent = `${participantsList.length} / ${eventCapacity}`;
+      waitlistCountDisplay.textContent = `${waitlistQueue.length}`;
+      capacityInput.value = eventCapacity;
+
+      // 2. Render Confirmed Participants Table (LinkedList Traverse)
+      const participants = participantsList.traverse(); // O(n)
+      participantsTableBody.innerHTML = '';
+
+      if (participants.length === 0) {
+        participantsTableBody.innerHTML = `
+          <tr>
+            <td colspan="6" class="empty-state">No participants registered yet.</td>
+          </tr>
+        `;
+      } else {
+        participants.forEach((p, idx) => {
+          const tr = document.createElement('tr');
+          if (isIdHighlighted(p.id)) {
+            tr.classList.add('highlighted');
+          }
+
+          let pointerBadges = '';
+          if (p.isHead) pointerBadges += '<span class="pointer-badge pointer-head">HEAD</span>';
+          if (p.isTail) pointerBadges += '<span class="pointer-badge pointer-tail">TAIL</span>';
+
+          tr.innerHTML = `
+            <td class="node-index">${idx + 1}</td>
+            <td class="participant-id">#${p.id}</td>
+            <td style="font-weight: 600;">${escapeHtml(p.name)}</td>
+            <td style="color: var(--text-muted);">${escapeHtml(p.email)}</td>
+            <td>${pointerBadges || '<span style="color:var(--text-dim); font-size:0.75rem;">node.next</span>'}</td>
+            <td style="text-align: right;">
+              <button class="btn btn-danger-sm cancel-btn" data-id="${p.id}">Cancel</button>
+            </td>
+          `;
+          participantsTableBody.appendChild(tr);
+        });
+      }
+
+      // Attach cancel button listeners
+      document.querySelectorAll('.cancel-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          const id = e.currentTarget.getAttribute('data-id');
+          cancelParticipant(id);
+        });
+      });
+
+      // 3. Render Waitlist Queue (FIFO: Front to Rear)
+      const waitlist = waitlistQueue.toArray();
+      waitlistContainer.innerHTML = '';
+
+      if (waitlist.length === 0) {
+        waitlistContainer.innerHTML = `
+          <div class="empty-state">Waitlist is currently empty.</div>
+        `;
+      } else {
+        waitlist.forEach((item, index) => {
+          const div = document.createElement('div');
+          div.className = 'ds-item';
+          const isFront = (index === 0);
+          const isRear = (index === waitlist.length - 1);
+
+          let roleTag = '';
+          if (isFront && isRear) {
+            roleTag = '<span class="tag-position" style="background:#4338ca; color:#e0e7ff;">FRONT & REAR</span>';
+          } else if (isFront) {
+            roleTag = '<span class="tag-position" style="background:#1e3a8a; color:#93c5fd;">FRONT (Next)</span>';
+          } else if (isRear) {
+            roleTag = '<span class="tag-position" style="background:#374151; color:#cbd5e1;">REAR</span>';
+          }
+
+          div.innerHTML = `
+            <div class="meta">
+              <span class="name">${escapeHtml(item.name)} ${roleTag}</span>
+              <span class="sub">#${item.id} • ${escapeHtml(item.email)}</span>
+            </div>
+            <span class="tag-position">Position #${index + 1}</span>
+          `;
+          waitlistContainer.appendChild(div);
+        });
+      }
+
+      // 4. Render Undo Stack (LIFO: Top to Bottom)
+      const stackItems = undoStack.toArray();
+      undoStackContainer.innerHTML = '';
+
+      if (stackItems.length === 0) {
+        undoStackContainer.innerHTML = `
+          <div class="empty-state">No actions in history.</div>
+        `;
+      } else {
+        stackItems.forEach((action, index) => {
+          const div = document.createElement('div');
+          div.className = 'ds-item';
+          const isTop = (index === 0);
+
+          div.innerHTML = `
+            <div class="meta">
+              <span class="name">
+                ${escapeHtml(action.title)}
+                ${isTop ? '<span class="tag-position" style="background:#4338ca; color:#e0e7ff; margin-left: 0.35rem;">TOP</span>' : ''}
+              </span>
+              <span class="sub">Type: ${action.type}</span>
+            </div>
+            <span class="tag-position">Depth ${stackItems.length - index}</span>
+          `;
+          undoStackContainer.appendChild(div);
+        });
+      }
+
+      // Disable / Enable Undo Button
+      undoBtn.disabled = undoStack.isEmpty();
+      undoBtn.style.opacity = undoStack.isEmpty() ? '0.45' : '1';
+      undoBtn.style.cursor = undoStack.isEmpty() ? 'not-allowed' : 'pointer';
+    }
+
+    function escapeHtml(str) {
+      if (!str) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    }
+
+
+    // =========================================================================
+    // 7. EVENT LISTENERS & INITIALIZATION
+    // =========================================================================
+
+    // Registration Form submit
+    registrationForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      registerParticipant(regId.value, regName.value, regEmail.value);
+      regId.value = '';
+      regName.value = '';
+      regEmail.value = '';
+      regId.focus();
+    });
+
+    // Capacity change
+    setCapacityBtn.addEventListener('click', () => {
+      const newCap = parseInt(capacityInput.value, 10);
+      if (isNaN(newCap) || newCap < 1) {
+        showNotification('Capacity must be a positive integer (min 1).', 'error', 'O(1)');
+        capacityInput.value = eventCapacity;
+        return;
+      }
+
+      eventCapacity = newCap;
+      showNotification(`Event capacity updated to ${eventCapacity}.`, 'success', 'O(1)');
+
+      // If capacity increased and waitlist has people, auto-promote them!
+      let promotedCount = 0;
+      while (participantsList.length < eventCapacity && !waitlistQueue.isEmpty()) {
+        const p = waitlistQueue.dequeue();
+        participantsList.register(p.id, p.name, p.email);
+        promotedCount++;
+      }
+
+      if (promotedCount > 0) {
+        showNotification(`Promoted ${promotedCount} participant(s) from waitlist into newly available spots!`, 'success', 'Queue Dequeue: O(1)');
+      }
+
+      saveState();
+      render();
+    });
+
+    // Search buttons
+    searchBtn.addEventListener('click', performSearch);
+    searchInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        performSearch();
+      }
+    });
+    clearSearchBtn.addEventListener('click', clearSearch);
+
+    // Sort buttons
+    sortByNameBtn.addEventListener('click', () => sortParticipants('name'));
+    sortByIdBtn.addEventListener('click', () => sortParticipants('id'));
+
+    // Undo button
+    undoBtn.addEventListener('click', undo);
+
+    // =========================================================================
+    // 8. SCROLL-DRIVEN WORKFLOW TIMELINE INITIALIZATION
+    // =========================================================================
+
+    /**
+     * Initializes the scroll-driven animated workflow:
+     * - Fills green progress line top-to-bottom in sync with scroll
+     * - Pops dots and slides in cards as green line reaches them
+     * - Reverses smoothly when scrolling up
+     * - Respects prefers-reduced-motion
+     */
+    function initTimeline() {
+      const container = document.getElementById('timelineContainer');
+      const progressBar = document.getElementById('timelineProgress');
+      const steps = document.querySelectorAll('.timeline-step');
+      const connectionBanner = document.getElementById('connectionBanner');
+
+      if (!container || !progressBar || steps.length === 0) return;
+
+      function updateTimeline() {
+        const containerRect = container.getBoundingClientRect();
+        const windowHeight = window.innerHeight;
+
+        // Activation trigger point: 65% from top of viewport
+        const triggerY = windowHeight * 0.65;
+
+        // Calculate progress line fill relative to container height
+        const scrolledPx = triggerY - containerRect.top;
+        const totalHeight = containerRect.height;
+        let progressPercent = (scrolledPx / totalHeight) * 100;
+        progressPercent = Math.max(0, Math.min(100, progressPercent));
+
+        progressBar.style.height = `${progressPercent}%`;
+
+        let activeCount = 0;
+        steps.forEach((step) => {
+          const dot = step.querySelector('.timeline-dot');
+          if (!dot) return;
+          const dotRect = dot.getBoundingClientRect();
+
+          if (dotRect.top <= triggerY) {
+            step.classList.add('active');
+            activeCount++;
+          } else {
+            step.classList.remove('active');
+          }
+        });
+
+        // Activate "All steps connected" banner when the last dot (step 11) is reached
+        if (activeCount === steps.length) {
+          if (connectionBanner) connectionBanner.classList.add('connected');
+        } else {
+          if (connectionBanner) connectionBanner.classList.remove('connected');
+        }
+      }
+
+      window.addEventListener('scroll', updateTimeline, { passive: true });
+      window.addEventListener('resize', updateTimeline);
+      // Run once on load
+      updateTimeline();
+    }
+
+    // Bootstrapping
+    const loaded = loadState();
+    if (!loaded || (participantsList.length === 0 && waitlistQueue.isEmpty())) {
+      seedInitialData();
+      saveState();
+    }
+    render();
+    initTimeline();
+  </script>
+</body>
+</html>
